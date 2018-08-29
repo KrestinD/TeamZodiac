@@ -1,0 +1,213 @@
+//gate agents algorithm that removes low priority customers in exchange for high priority customers once 
+//the plane is at max capacity. if capacity is never met, it simply seats all customers 
+//written in C++ using command line arguments. 
+//first line is the flight name, and subsequent lines are in the format:
+//customerName  flightNumber  priorityLevel
+
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include "ArgumentManager.h"
+#include <sstream>
+#include <string.h>
+
+
+
+
+using namespace std;
+
+struct lowPriority
+{
+    string name;
+    string flightNumber;
+};
+
+class flightManifest
+{
+    
+    string customerName();
+    string priorityLevel;
+    string flightNumber;   //ticket scanner has to confirm this
+    bool hasBoarded = false;
+    
+    
+};
+
+class flightBoarding
+{
+public:
+    
+    
+    flightBoarding(int cap)
+    {
+        capacity = cap;
+        numberBoarded = 0;
+        remainingPriorityCustomers = 0;
+        //might add a totalTicketsBought integer here
+    }
+    
+    string updateNumberBoarded()
+    {
+        numberBoarded = numberBoarded + 1;
+        
+        if(numberBoarded == capacity)
+        {
+            return "We've reached max capacity!";
+            
+        } else {
+            return "You can continue";
+        }
+        
+    }
+    
+    int capacity;
+    int numberBoarded;
+    int remainingPriorityCustomers;
+    int totalTicketsBought;
+
+    
+    
+    string flightNumber();
+    vector<string> lowPriorityList;
+    vector<string> remainingHighPriority;
+    vector<string> removedCustomers;
+    
+    
+    
+    void addToRemainingList(string name)
+    {
+        remainingHighPriority.push_back(name);
+        remainingPriorityCustomers = remainingPriorityCustomers + 1;
+    }
+
+    
+    void addToLowList(string name)
+    {
+        lowPriorityList.push_back(name);
+        
+    }
+    
+    void removeAndExchangeCustomer()
+    {
+        string removedCustomer = lowPriorityList.back();  //access the name of the customer we are removing
+        cout << "We are removing " << removedCustomer << endl;
+        removedCustomers.push_back(removedCustomer);      //add that customer to list of removed customers to reaccomidate them later
+        lowPriorityList.pop_back();                       //remove him from flight
+        remainingHighPriority.pop_back();                 //put this remaining high priority customer into flight and remove him from list
+        remainingPriorityCustomers = remainingPriorityCustomers - 1;    //update remaining priority customers
+    }
+};
+
+
+
+
+
+
+
+
+
+
+int main(int argc, char* argv[]) {
+    
+
+    // ./main "inputfile=AAData.txt"
+    
+    if (argc < 2) {
+        std::cerr << "Usage: AA inputfile=input.txt" << std::endl;
+        return -1;
+    }
+    
+    ArgumentManager am(argc, argv);
+    const std::string input_file_name = am.get("inputfile");
+    cout << "input file name is " << input_file_name << std::endl;
+    
+    ifstream inStream;
+    
+    string temp = "";
+    string currFlight;
+    
+    
+    
+    inStream.open(input_file_name);
+    getline(inStream, temp);  //get the first line which is the flight name
+    
+    
+    
+    
+    currFlight = temp;       //holds name of current flight
+    flightBoarding flightCapacity(10);
+    bool capIsFull = false;
+
+    while (!inStream.eof())
+    {
+        getline(inStream, temp);
+        
+        string customerName;
+        string flightNumber;
+        string priorityLevel;
+        
+        customerName = temp;
+        stringstream ss(customerName);
+        ss >> customerName >> flightNumber >> priorityLevel;   //splits up the current line
+
+        //cout << customerName << " " << flightNumber << " " << priorityLevel << endl;
+        
+        if(flightNumber != currFlight)
+        {
+            cout << "This customer, " << customerName << " is in the wrong flight, please direct him to his correct flight." << endl;
+            continue;
+        }
+        
+        
+        
+        
+        if(capIsFull == true)   //if capacity is already full, we only check to see if theres priority customers left out
+        {
+            if(priorityLevel != "Low")
+            {
+                flightCapacity.addToRemainingList(customerName); //add the priority customer to priority vector
+                
+            }
+            continue;  //if not priority, just continue
+        }
+        
+        
+        
+        
+        if(priorityLevel == "Low")
+        {
+            flightCapacity.addToLowList(customerName);
+            
+        }
+        
+
+        if(flightCapacity.updateNumberBoarded() == "You can continue")
+        {
+            continue;
+            
+        } else {  //capacity has been met
+            //int curr = flightCapacity.capacity;
+            capIsFull = true;
+            
+        }
+        
+
+        
+    }
+    
+    
+    while(flightCapacity.remainingPriorityCustomers != 0)
+    {
+        flightCapacity.removeAndExchangeCustomer();
+        
+        
+    }
+    
+    //once we reach here, all priority customers have been accommodated
+    
+    
+
+    
+    return 0;
+}
