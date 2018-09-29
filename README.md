@@ -1,5 +1,6 @@
-# Futureskills-TeamZodiac
-Indigo challenge -  To create a ‘one in a million experience’ for every single customer.
+# Singapore Airlines AppChallenge 2018
+# Team Zodiac
+Airlines challenge -  To create a ‘one in a million experience’ for every single customer.
 
 The Aim of the project is to create  ‘one in a million experience’ for every single customer right from entering the Airport to their departure from the flight.
 The project is divided into the following sections –
